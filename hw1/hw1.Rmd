@@ -1,0 +1,191 @@
+---
+title: "hw1"
+author: "Tariq Anwar"
+date: "January 20, 2016"
+output: html_document
+---
+
+Data Set Source: https://github.com/caesar0301/awesome-public-datasets/blob/master/Datasets/titanic.csv.zip
+
+
+Nature of Data: The dataset contains data about titanic.
+
+It contains infomation about passengers, Gender, Name, Fare , Survived Passengers etc.
+
+
+There are total 12 features in the dataset and 891 observations.
+              
+
+```{r}
+library(ggplot2)
+titanic <- read.csv("C:/Users/tariq/Downloads/titanic.csv")
+#Summary
+summary(titanic)
+```
+
+
+##Question 1.a
+###Total Observations ,  Total Features
+```{r}
+dim(titanic)
+#Features of DataSet
+names(titanic)
+```
+
+
+##Question 1.b 
+###Features Types
+```{r}
+type<-list()
+for(t in names(titanic))
+  type[[t]] <- class(titanic[[t]])
+
+ print(type)
+
+```
+
+##Question1.c
+###Summaries of each featured is shown above (i.e summary(titanic))
+
+##Question 1.d
+###Univariate Plots for all the numeric data:
+
+
+
+```{r, echo=FALSE}
+#Univariate Plot
+quantitative <- sapply(titanic, is.numeric)
+for(t in names(titanic[quantitative])){
+  hist(titanic[,t],xlab = t, main = paste("Histogram of", t))
+}
+
+```
+
+
+****************************************************************************************************************************************************************************************
+
+#                                    **Question2**
+```{r}
+
+set.seed(123)
+index <- sample(1:nrow(diamonds), 50) # try a subset first
+diamonds2 <- diamonds[index,]
+hist(diamonds2$price)
+hist(diamonds2$price, breaks=quantile(diamonds2$price))
+
+```
+
+###Question 2.a
+We have sample size of 50 diamonds,
+
+
+The price range is: `r range(diamonds2["price"])`
+
+
+we can divide the diamonds in different price group of equal size
+
+
+with  each group having an interval of 2000
+
+Counting the sum of elements in each individual group and storing it in a vector g
+
+```{r}
+g<- numeric(length = 0)
+g[1]<- (sum(diamonds2["price"]<=2000))
+g[2]<- (sum(diamonds2["price"]<=4000 & diamonds2["price"]>2000))
+g[3]<- (sum(diamonds2["price"]<=6000 & diamonds2["price"]>4000))
+g[4]<- (sum(diamonds2["price"]<=8000 & diamonds2["price"]>6000))
+g[5]<- (sum(diamonds2["price"]<=10000 & diamonds2["price"]>8000))
+g[6]<- (sum(diamonds2["price"]<=12000 & diamonds2["price"]>10000))
+g[7]<- (sum(diamonds2["price"]<=14000 & diamonds2["price"]>12000))
+g[8]<- (sum(diamonds2["price"]<=16000 & diamonds2["price"]>14000))
+
+print(g)
+
+
+
+```
+As we can see , vector g contains same number of elements as 
+shown in the given bar graph.
+
+
+In order to proof the correctness of second histogram , we will calculate each class
+width, and that can be caculated by finding the quartile of diamonds "price" parameter
+```{r}
+quantile(diamonds2$price)
+```
+Now we can calculate height of each box with the following formula:
+$$ h(x) = freq/n*(c(i)-c(i+1)$$
+where h = height : 
+C(i)= lower boundary of interval :
+c(i+1)= upper boundary of interval :
+n = total data
+
+
+```{r}
+f<- numeric(length = 0)
+f[1]<- (sum(diamonds2["price"]<=1212.75&diamonds2["price"]>=537 ))
+f[2]<- (sum(diamonds2["price"]<=2831 & diamonds2["price"]>1212.75))
+f[3]<- (sum(diamonds2["price"]<=5724.75 & diamonds2["price"]>2831))
+f[4]<- (sum(diamonds2["price"]<=14709 & diamonds2["price"]>5724.75))
+
+#print(f)
+
+#height of each box
+h<- numeric(length = 0)
+h[1]<-(f[1])/(50*(1212.75-537))
+h[2]<-(f[2])/(50*(2831-1212.75))
+h[3]<-(f[3])/(50*(5724.75-2831))
+h[4]<-(f[4])/(50*(14709-5724.75))
+
+
+
+print(h)
+
+```
+As we can see the height we calculated manually is almost same as shown in the histogram.
+
+
+We can cross check the frequency values by below formula
+```{r}
+w<-numeric(length = 0)
+w[1]<- (h[1] * (1212.75-537))*50
+w[2]<-(h[2]*(2831-1212.75))*50
+w[3]<-(h[3])*(5724.75-2831)*50
+w[4]<-(h[4])*(14709-5724.75)*50
+print(w)
+```
+This is the same as the frequency values we calculated above.
+
+If we manually map the height vector and quantile vector it is similar to given histogram.
+
+
+###Question 2(b):
+
+For the first histogram:
+
+
+We can count the frequency of first two box , that will give the number of diamonds 
+below 4000 
+
+total = freq of 1st box + freq of second box
+
+
+      = 20+9 => 29
+      
+  Proportion of diamonds below 4000 = `r 29/50 `    
+
+
+For second histogram:
+
+
+Proportion of diamonds with price less than 4000 can be calculated as:
+
+$$ Area of 1st quartile+ Area of second quartile + Area in (4000-2nd quartile boundary)$$
+
+```{r}
+val <- (h[1]*(1212.75-537)*50)+(h[2]*(2831-1212.75)*50) + (h[3]*(4000-2831)*50)
+```
+
+
+Proportion of diamonds below 4000 = `r val/50 `

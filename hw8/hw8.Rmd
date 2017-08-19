@@ -1,0 +1,363 @@
+---
+title: "hw8"
+author: "Tariq Anwar"
+date: "April 16, 2016"
+output: html_document
+---
+
+```{r}
+data = read.table("CH14PR14.txt",sep = '')
+colnames(data)<- c ("Y","X1","X2","X3")
+
+fit<- glm(Y ~ X1+X2+X3, family=binomial, data=data) 
+summary(fit)
+# B = z(1-.10/2*g)= z(1-.10/2*2) = z(.975) = 1.960
+l1<- .07279-1.960*(0.03038)
+h1<- .07279+1.960*(0.03038)
+
+##CI for b1 
+l11<-exp(30*l1)
+h11<-exp(30*h1)
+
+l2<- -.09899-1.960*(0.03348)
+h2<- -.09899+1.960*(0.03348)
+
+##CI for 30
+l22<-exp(25*l2)
+h22<-exp(25*h2)
+
+
+
+```
+
+CI= `r l11` <$\beta_1$ < `r h11`
+
+
+CI= `r l22` <$\beta_2$ < `r h22`
+
+Here the joint confidence interval is estimated using bonferroni procedure.
+We can conclude that approximately 95% confidence that $\beta_1$ is between  `r l11` <$\beta_1$ < `r h11` also
+95 % confident that `r l11` <$\beta_1$ < `r h11`.
+
+####Part b
+
+Null Hypothesis: $\beta_3 = 0$
+Alternate Hypothesis: $\beta_3 \neq 0$
+
+$z^* = 0.43397/0.5279$
+
+Decision Rule: z(1-.05/2) = z(.975) = 1.96
+
+if $Z^* <= 1.96 conclude H_0$
+
+
+   $Z^* >= 1.96 conclude H_a$
+   
+```{r}
+z<-0.43397/0.52179
+z
+
+```
+since z <= 1.96  we can conclude Null hypothesis is true
+
+
+Hence we conclude that can remove X3
+
+
+The P-Value is 0.202817
+
+
+##Part C
+```{r}
+##Full Model
+FM<-logLik(fit)
+
+## Reduced Model
+rm<-glm(Y ~ X1+X2, family=binomial, data=data)
+
+summary(rm)
+RM<-logLik(rm)
+```
+
+Test Statistics is: $G^2=-2(RM-FM)$ = `r -2*(RM-(FM)) `
+
+For $\alpha=0.05$ we require $\chi^2 (.95;1) = 3.84$
+
+Decision Rule
+   $G^2 <= 3.84 conclude H_0$
+   
+   $G^2 >= 3.84 conclude H_a$
+   
+   
+   
+Since   test statictic is less than 3.84 we conclude that null hypothesis is true.
+
+P value of the test is 0.4020.
+
+It can be concluded form b and c that X3 is not relevant and hence can be dropped from the model. 
+
+##Part d
+
+Null Hypothesis: $\beta_3 , \beta_4 , \beta_5 = 0$
+
+Alternate Hypothesis: $\beta_3  \beta_4 , \beta_5 \neq 0$
+```{r}
+nm<-glm(Y ~ X1+X2+I(X2^2)+I(X1^2)+X1*X2, family=binomial, data=data)
+#summary(nm)
+
+NM<-logLik(nm)
+anova(nm,test="Chisq")
+
+```
+
+Test Statistics is: $G^2=-2(FM-NM)$ = `r -2*(RM-(NM)) `
+
+For $\alpha=0.05$ we require $\chi^2 (.95;3) = 7.81$
+
+Decision Rule
+  if  $G^2 <= 7.81 conclude H_0$
+   
+  iff  $G^2 >= 7.81 conclude H_a$
+   
+   
+Since   test statictic is less than 7.81 we conclude that null hypothesis is true.
+
+P-value of test is 0.6744.
+
+
+##Problem2
+```{r}
+#part a
+library(MASS)
+Null = lm( Y ~ 1, family=binomial,data=data)
+full<-glm(Y ~ X1+X2+X3+I(X1^2)+I(X2^2)+X1*X2, family=binomial, data=data)
+
+addterm( Null, scope = full, test="F" )
+NewMod = update( Null, .~. +X2 )
+addterm( NewMod, scope = full, test="F" )
+NewMod = update( NewMod, .~. +I(X1^2))
+addterm( NewMod, scope = full, test="F" )
+NewMod = update( NewMod, .~. +I(X2^2) )
+addterm( NewMod, scope = full, test="F" )
+
+
+##########################################################
+```
+Step 1:  X2 enters the model
+
+step 2:  X1^2 enters the model
+
+Step 3:  X2^2 enters the model
+
+#part b
+
+```{r echo=FALSE}
+Null = lm( Y ~ 1, family=binomial,data=data)
+fullmodel<-glm(Y ~ X1+X2+X3+I(X1^2)+I(X2^2), family=binomial, data=data)
+
+dropterm( fullmodel, test = "F" )
+NewMod2 = update( fullmodel, .~. -I(X1^2) )
+dropterm( NewMod2, test = "F" )
+NewMod2 = update( NewMod2, .~. -X3 )
+dropterm( NewMod2, test = "F" )
+NewMod2 = update( NewMod2, .~. -I(X2^2) )
+dropterm( NewMod2, test = "F" )
+```
+Step 1: Drop X1^2
+Step 3: Drop X3
+Step 4: Drop X2^2
+
+predictors remaining in the model are X1 and X2
+
+It is different from part (a). Since it chooses X1 and X2 whereas there we got different predictors
+
+###Part c and d
+
+```{r}
+##########################################
+Null = lm( Y ~ 1, family=binomial,data=data)
+full<-glm(Y ~ X1+X2+X3+I(X1^2)+I(X2^2)+X1*X2, family=binomial, data=data)
+forward<-step(Null, scope = list( upper=full, lower=~1 ), direction = "forward", trace=FALSE)
+formula(forward)
+
+#########################################
+step(full,direction="backward",k=log(nrow(data)))
+
+```
+According to  AIC criterion the predictors choosen are same as that of part a.
+According to SBc criterion the predictors choosen are same as that of part b.
+
+###Question 3
+
+####Part a
+plotted values after  
+```{r ,echo=FALSE}
+
+mod3 <- glm(Y ~ X1+X2,family = binomial("logit"), data = data)
+
+library(ResourceSelection)
+h<-hoslem.test(data$Y, fitted(mod3), g=8)
+
+cbind(h$expected,h$observed)
+```
+ 
+
+####Part b
+```{r}
+htest<-hoslem.test(data$Y, fitted(mod3), g=8)
+htest
+```
+
+Null Hypothesis $H_0 : E({Y})=[1+exp(-\beta_0-\beta_1X_1-\beta_2X_2-\beta_3X_3)]^{-1}$
+
+
+Alternate Hypothesis: $H_0 : E({Y})\neq[1+exp(-\beta_0-\beta_1X_1-\beta_2X_2-\beta_3X_3)]^{-1}$
+
+$\chi^2 =11.97$
+
+since chi square is less than chisquare(.95;6)=12.59 we conclude H0 otherwise Ha
+
+Hence H0 is true
+
+P value 0.062
+
+####Part c
+```{r}
+ plot(predict(mod3),residuals(mod3),col=c("blue","red"))
+abline(h=0,lty=2,col="grey")
+lines(lowess(predict(mod3),residuals(mod3)),col="black",lwd=2)
+```
+a lowess smooth of the plot of the residuals against the estimated probability should resu!t
+approximately in a horizontal line with zero intercept, however as we can see from the plot that the line is not horizontal with zero intercept , hence the model is inadequate.
+###Problem 4
+####part a
+```{r}
+
+fit<- glm(Y ~ X1+X2+X3, family=binomial, data=data) 
+newOrings <- data.frame(X1=65, X2=50,X3=0)
+newOrings.predictLink <- predict(fit,newdata=newOrings ,se.fit=T, type="link")
+L <- newOrings.predictLink$fit - qnorm(1-0.05/(2*2))*newOrings.predictLink$se
+U <- newOrings.predictLink$fit + qnorm(1-0.05/(2*2))*newOrings.predictLink$se
+ci = c(L,U)
+ci
+```
+It means that we are  95% confident that a female whose age is 65 and whose health awareness index is 50 will get a flu shot.
+####Part b
+```{r,echo=FALSE}
+library(ROCR)
+fit<- glm(Y ~ X1+X2+X3, family=binomial, data=data)
+#mysteps <- step(fit, Y~X1+X2+X3, data=data,  family="binomial")
+theProbs <- fitted(fit)
+```
+
+```{r}
+table(theProbs>.5, data$Y)
+table(theProbs>.10, data$Y)
+table(theProbs>.15, data$Y)
+table(theProbs>.20, data$Y)
+```
+Cutoff=0.5  No Vaccine= 62.2 Vaccine = 4.3  Total 66.8
+
+Cutoff=.10  No vaccine= 39.3 Vaccine = 13.04 Total = 52.41
+
+cutoff=.15  No vaccin = 26.7 Vaccine= 17.3  Total= 441.16
+
+Cutoff=.20  No vaccine =15.75 Vaccine=39.13  Total=54.88
+
+
+
+####part c
+
+As we can see from the result from part b that the cutoff which minimize the total error rate
+
+is Cutoff = .15
+
+```{r}
+train <- sample(x=1:nrow(data), size=nrow(data)/4)
+fit.train <- glm(Y ~., family=binomial, data=data[train,])
+
+# calculate predicted probabilities on the same training set
+scores <- predict(fit.train, newdata=data[train,], type="response")
+
+# compare predicted probabilities to labels, for varying probability cutoffs
+pred <- prediction(scores, labels=data[train,]$Y )
+perf <- performance(pred, "tpr", "fpr")
+
+# plot the ROC curve
+plot(perf, colorize=F, main="In-sample ROC curve")
+
+# print out the area under the curve
+unlist(attributes(performance(pred, "auc"))$y.values)
+
+
+# --------------Evalate the predictive ability on the validation set------------
+# make prediction on the validation dataset
+scores <- predict(fit.train, newdata=data[-train,], type="response")
+pred <- prediction( scores, labels=data[-train,]$Y )
+perf <- performance(pred, "tpr", "fpr")
+
+# overlay the line for the ROC curve
+plot(perf, colorize=T, add=TRUE)
+
+# print out the area under the curve
+unlist(attributes(performance(pred, "auc"))$y.values)
+
+```
+
+###part d
+The reliability of the prediction error rate observed in the model-building data set is examined by applying the chosen prediction rule to a validation data set.
+If the new prediction error rate is about the same as that for the model-building data set, then the latter gives a reliable indication of the predictive ability of the fitted logistic regression model and the chosen prediction rule.
+If the new data lead to a considerably higher prediction error rate, then the fitted logistic regression model and the chosen prediction rule do not predict new observations as well as originally indicated
+
+###Problem 5
+####part a
+```{r}
+ldata<- matrix(data = c(35,35,40,40,45,45,50,50,55,55,60,60,22,20,28,31,37,38,41,39,34,37,27,20), nrow=12 , ncol=2)
+
+ldata<-data.frame(ldata)
+colnames(ldata)<- c("X","Y")
+
+fit2 <- lm(ldata$Y ~ ldata$X + I(ldata$X^2))
+fit2
+
+plot(ldata$X, ldata$Y, type="l", lwd=3)
+points(ldata$X, predict(fit2), type="l", col="red", lwd=2)
+```
+The quadratic function is good fit here.
+
+####part b
+```{r}
+mean_x<- mean(ldata$X)
+X_max= mean_x-(.5*(as.numeric(fit2$coef[2]))/as.numeric(fit2$coef[3]) )
+X_max
+
+
+```
+
+####part c
+```{r}
+library(boot)
+fit <- fitted(fit2)
+e <- residuals(fit2)
+x <- model.matrix(fit2)
+boot.fixed <- function(data, indices, maxit=20){
+y <- fit + e[indices]
+mod <- rlm(y ~ x-1, maxit=maxit)
+coefficients(mod)}
+
+
+fix.boot <- boot(ldata, boot.fixed, 1000, maxit=100)
+fix.boot
+```
+
+###Part d
+```{r}
+plot(fix.boot,index=2)
+```
+yes the histogram is normally distributed
+
+###Part e
+```{r}
+boot.ci(boot.out = fix.boot, conf = 0.90,type = c("norm", "perc", "bca"),
+index = 2)
+```

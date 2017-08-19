@@ -1,0 +1,337 @@
+---
+title: "hw2"
+author: "Tariq Anwar"
+date: "January 27, 2016"
+output: html_document
+---
+##Question 1.a
+ 
+### Q-Q Plot
+QQ plot are used for verifying whether the data set in a population are approximately normally
+distributed or not.If the data is normally distributed it should form a straight line.
+
+Here we are generating qqplot for diamonds price
+```{r}
+library(ggplot2)
+qqnorm(diamonds$price)
+```
+
+As we can see from the figure, the data here is not normally distributed.
+
+We will now plot qqplot for logarithm of diamonds price.
+
+```{r}
+qqnorm(log(diamonds$price))
+```
+
+The logarithmic plot can reveal the data clearly as compared to normal qqplot of actual values as the data is more sparse.
+
+
+###Question 1.b
+
+#### i) histogram of diamonds price
+```{r}
+hist(diamonds$price)
+```
+
+
+#### ii) Sample mean
+```{r}
+means <- numeric(length = 0)
+for(i in 1:100){
+means[i]<-  mean(sample(diamonds$price,3,replace = FALSE))
+}
+
+hist(means)
+
+#part iii
+for(i in 1:100){
+means[i]<-  mean(sample(diamonds$price,5,replace = FALSE))
+}
+
+hist(means)
+
+for(i in 1:100){
+means[i]<-  mean(sample(diamonds$price,10,replace = FALSE))
+}
+
+hist(means)
+
+for(i in 1:100){
+means[i]<-  mean(sample(diamonds$price,20,replace = FALSE))
+}
+
+hist(means)
+
+```
+
+As we can see here plotting the means of random sample repeatedly will transform the histogram  to normal distribution.
+
+If we will increase the sample size of the dataset it will converge to normal distribution at much faster rate
+
+####Question 1.b.iv  Logarithmic plot 
+
+```{r}
+hist(log(diamonds$price))
+```
+
+
+#### ii) Sample mean
+```{r}
+means <- numeric(length = 0)
+for(i in 1:100){
+means[i]<-  mean(sample(log(diamonds$price),3,replace = FALSE))
+}
+
+hist(means)
+
+#part iii
+for(i in 1:100){
+means[i]<-  mean(sample(log(diamonds$price),5,replace = FALSE))
+}
+
+hist(means)
+
+for(i in 1:100){
+means[i]<-  mean(sample(log(diamonds$price),10,replace = FALSE))
+}
+
+hist(means)
+
+for(i in 1:100){
+means[i]<-  mean(sample(log(diamonds$price),20,replace = FALSE))
+}
+
+hist(means)
+
+```
+In the logarithmic plot of histogram we can see that even for smaller data set size calculating the sample mean, results in normal distribution faster.
+
+
+###Question2
+here it is given 
+
+n=25,  $\mu = 65$ ,  $\sigma = 2.5$
+
+Expected Value of sample distribution is same as population mean
+ 
+ hence     Expected value=$\mu$ =65
+ 
+ Standard error (SE)= $\sigma / \sqrt n$ = `r 2.5/5`
+ 
+ Also the shape of original distribution is normal and we are taking the sampling distribution of size 25.
+ 
+####Question 2 part b
+ We will convert $N(65,.5^2)$ into $N(0,1)$
+ 
+ so  $Z = (X-\mu)/\sigma$  = $Z=(66-65)/.5$ =`r (66-65)/0.5`
+ 
+ So (P>66) = (P>2) 
+ 
+ = (1- .9772) (By Z table)
+ 
+ = `r (1- 0.9772)`
+ 
+ 
+ $$$$
+######## probablity less than 63in
+ 
+  We will convert $N(63,.5^2)$ into $N(0,1)$
+ 
+ so  $Z = (X-\mu)/\sigma$  = $Z=(63-65)/.5$ =`r (63-65)/.5`
+ 
+ So (P<63) = (P< -4) 
+ 
+ =.000032(By Z table)
+
+ 
+ $$$$
+######## probablity between 63.5 and 66.5
+ 
+  We will convert  into $N(0,1)$
+ 
+ so $Z1=(63.5-65)/.5$ =`r (63.5-65)/.5`
+ 
+ and  $Z2=(66.5-65)/.5$ =`r (66.5-65)/.5`
+ 
+ so probablity is between P(-3) and P(+3)
+ 
+ which is equal to P(3) - P(-3) , we will use Z table to calculate probablity
+ 
+ = (.9987 - .0013) = `r (.9987 - .0013) `
+ 
+ 
+ 
+ 
+#### Part c
+According to the empirical rule we know that 95% of data comes under 2 standard deviation
+
+So we have to calculate the interval between Z score of -2 to 2
+
+that can be caluclated using the same formula
+
+$Z = (X-\mu)/ \sigma$
+=> $X = Z*\sigma + \mu$
+
+so for lower interval 
+
+ X = (-2*.5+65) =  `r (-2*.5+65)`
+ 
+ for upper interval
+ X = (2*.5+65) =  `r (2*.5+65)`
+
+So 95% data will be in interval [64 66]
+
+
+####  Part D
+
+Here the sample size is 1 since we are looking at the first girl.
+
+hence, n=1 and $\sigma = 2.5 and \mu=65$
+
+SE= 2.5/1 = 2.5
+
+  We will convert $N(66,2.5^2)$ into $N(0,1)$
+ 
+ so  $Z = (X-\mu)/\sigma$  = $Z=(66-65)/2.5$ =`r (66-65)/2.5`
+
+ So (P>66) = (P>0.4) 
+ 
+ =(1-.6554)= .3446 (By Z table)
+ 
+#### Part E
+The difference in value is due to the sample size , in part b we have sample size of 25, so its standard error of sample varies according to the sample size.
+
+
+
+
+###Question3
+
+
+here it is given 
+
+n=100,  $\mu = 65$ ,  $\sigma = 2.5$
+
+Expected Value of sample distribution is same as population mean
+ 
+ hence     Expected value=$\mu$ =65
+ 
+ Standard error (SE)= $\sigma / \sqrt n$ = `r 2.5/10`
+ 
+ 
+####Question 3 part b
+ We will convert $N(65,.25^2)$ into $N(0,1)$
+ 
+ so  $Z = (X-\mu)/\sigma$  = $Z=(66-65)/.25$ =`r (66-65)/0.25`
+ 
+ So (P>66) = (P>4) 
+ 
+ = .000032 (By Z table)
+ 
+ 
+ $$$$
+##### probablity less than 63in
+ 
+  We will convert $N(63,.25^2)$ into $N(0,1)$
+ 
+ so  $Z = (X-\mu)/\sigma$  = $Z=(63-65)/.25$ =`r (63-65)/.25`
+ 
+ So (P<63) = (P< 8) 
+ 
+ =0(By Z table)
+ 
+ $$$$
+##### probablity between 63.5 and 66.5
+ 
+  We will convert  into $N(0,1)$
+ 
+ so $Z1=(63.5-65)/.25$ =`r (63.5-65)/.25`
+ 
+ and  $Z2=(66.5-65)/.25$ =`r (66.5-65)/.25`
+ 
+ so probablity is between P(-6) and P(+6)
+ 
+ which is equal to P(6) - P(-6) , we will use Z table to calculate probablity
+ 
+ = almost 0
+ 
+ 
+ 
+#### Part c
+According to the empirical rule we know that 95% of data comes under 2 standard deviation
+
+So we have to calculate the interval between Z score of -2 to 2
+
+that can be caluclated using the same formula
+
+$Z = (X-\mu)/\sigma$
+=> $X = Z\sigma + \mu$
+
+so for lower interval 
+
+ X = (-2*.25+65) =  `r (-2*.25+65)`
+ 
+ for upper interval
+ X = (2*.25+65) =  `r (2*.25+65)`
+
+So 95% data will be in interval [64.5 65.5]
+
+
+####  Part D
+
+Here the sample size is 1 since we are looking at the first girl.
+
+hence, n=1 and $\sigma = 2.5 and \mu=65$
+
+SE= 2.5/1 = 2.5
+
+  We will convert $N(66,2.5^2)$ into $N(0,1)$
+ 
+ so  $Z = (X-\mu)/\sigma$  = $Z=(66-65)/2.5$ =`r (66-65)/2.5`
+
+ So (P>66) = (P>0.4) 
+ 
+ =(1-.6554)= .3446 (By Z table)
+ 
+#### Part E
+The difference in value is due to the sample size , in part b we have sample size of 100, so its standard error of sample varies according to the sample size.
+
+
+###Question4
+
+####Difference between Standard deviation and standard error
+
+Standard deviation is the measure of deviation of data from the mean value
+
+It is calculated as : $$SD = \sqrt(\sum(Y(i)-y)^2 /N)$$
+
+Standard error is calculated for a sample data of population and it is standard deviation of sampling distribution
+
+
+It is calculated as: $$S.E = \sigma/\sqrt n$$
+
+For a given population standard deviation is always greater than standard error
+
+
+###Question5
+
+####Relationship between standard error and size of sampler
+
+let n be size of sample data $$S.E = \sigma/\sqrt n$$
+
+With increasing sample size the standard error will tend to 0.
+
+
+###Question6
+#### Central Limit Theorem
+
+Central limit theorem states that the sample mean of sufficiently large number of samples
+from a given population will be normally distributed.
+For e.g If we flip a coin very large number of times, the probablity of getting a given number of heads will follow a normal curve with mean equal to half the total number of flips.
+
+Importance:
+
+As we know that it is impossible to figure out mean of population ,the central limit theorem tells that sample mean will be close to poulation mean.
+
+Apart from these there are certain characteristics of normal curve which can be applied to CLT such as Probablity density function,which can tell lot about the population.
+   

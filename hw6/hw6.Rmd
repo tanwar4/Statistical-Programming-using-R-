@@ -1,0 +1,259 @@
+---
+title: "hw6"
+author: "Tariq Anwar"
+date: "March 19, 2016"
+output: html_document
+---
+##PB1
+```{r}
+ldata<- matrix(data = c( 199.0,205.0,196.0,200.0,218.0,220.0,215.0,223.0,237.0,234.0,235.0,230.0,250.0,248.0,253.0,246.0,16.0,16.0,16.0,16.0,24.0,24.0,24.0,24.0,32.0,32.0,32.0,32.0,40.0,40.0,40.0,40.0), nrow=16 , ncol=2)
+
+ldata<-data.frame(ldata)
+colnames(ldata)<- c("Y","X")
+#plot(ldata$X,ldata$Y)
+llm = lm(Y~X,data=ldata)
+anova(llm)
+
+```
+#####part b.
+Testing H0:  $\beta_1$ = 0 vs Ha:  $\beta_1 != 0$. 
+Reject H0 if P-value < 0.01.  Since P-value < 0.0001, we reject H0 and conclude that there is a significant linear relationship between hardness and time.
+
+#####partc
+```{r}
+diff<-(ldata$Y - predict(llm))
+plot(ldata$X,diff)
+abline(0, 0) 
+
+diff<-(predict(llm)-mean(ldata$Y))
+plot(ldata$X,diff)
+abline(0, 0) 
+
+##from the graph we can see that residuals are much smaller than deviation of predictors againts the mean.Magnitude should be closer to 1 as SSR is larger than SSE
+
+###part d
+summary(llm)$r.squared
+
+sqrt(summary(llm)$r.squared)
+```
+##PB2
+Yes.The confidence interval can be sufficiently precise to be useful, It can confirm 
+the relation and indicate the degree of linear association between the variables.
+
+##PB3
+```{r}
+inner.mod <- lm(ldata$Y ~ ldata$X, ldata)
+outer.mod <- lm(ldata$Y ~ factor(ldata$X), ldata)
+anova(inner.mod, outer.mod)
+#The rejection region for the test of hypothesis is F(.99,2,12)=6.93
+#but F* = 0.82369 , so we fail to reject null hypothesis
+
+#part b
+#By having equal no of replicates at each level of X, the error measurement will be same at each level of X which means none of X will have any larger influence on test than other.
+#The disadvantage is  error measurement at some X's may be worse than at others.
+
+###Part C
+#the test dont tell anything about function but we can use scatter plot to see any pattern to find relationship.
+
+```
+##Pb 4.
+```{r}
+data = read.table("data.txt",sep = '\t')
+colnames(data)<- c("Y","X1","X2","X3")
+
+cases_shipped<- data$X1
+stem(cases_shipped)
+
+indirect_cost<- data$X2
+stem(indirect_cost)
+
+#There are no outlying cases and no gaps in data
+
+timeseries<- ts(data$X1,start=1,end=52,frequency = 1)
+plot(timeseries, plot.type = "single")
+
+timeseries2<- ts(data$X2,start=1,end=52,frequency = 1)
+plot(timeseries2, plot.type = "single")
+
+timeseries3<- ts(data$X3,start=1,end=52,frequency = 1)
+plot(timeseries3, plot.type = "single")
+
+#correlation
+pairs(data[,1:4])
+
+#correlation matrix
+cor(data)
+mcor<-cor(data)
+
+#correlation matrix tells that the predictor variable is highly correlated with response variable.
+library(corrplot)
+corrplot(mcor, type="upper", order="hclust", tl.col="black", tl.srt=15)
+```
+
+##PB5
+```{r}
+fit <- lm(Y ~ X1 + X2 + X3, data=data)
+fit
+
+#regression function is 
+# Y= 4.150e+03+7.871e-04X1-1.317e+01*X2+6.236e+02*X3
+# The parameter b1 indicates the change in the mean response E{Y} per unit increase in
+#X1 when X2 and X3 is held constant. Likewise, b2 indicates the change in the mean reSponSe per unit increase in X2 when X1 and X3 is held constant. 
+summary(fit) # show results
+#resid
+resid <- resid(fit)
+#qqnorm(resid(fit))
+boxplot(resid)
+#error normally distributed with mean of 0
+
+#C.
+plot(data$X1, resid,ylab="Residuals", xlab="X1",main="Residual Plot for X1") 
+abline(0, 0)  
+
+plot(data$X2, resid,ylab="Residuals", xlab="X2",main="Residual Plot for X2") 
+abline(0, 0) 
+
+plot(data$X3, resid,ylab="Residuals", xlab="X3",main="Residual Plot for X3") 
+abline(0, 0) 
+
+plot(data$X2+data$X1, resid,ylab="Residuals", xlab="X1",main="Residual Plot for X1X2") 
+abline(0, 0) 
+
+plot(fitted(fit), resid,ylab="Residuals", xlab="X1",main="Residual Plot for Fitted") 
+abline(0, 0) 
+
+# the residual plot of X2 is normally distributed whereas the remaining residuals plots are not distributed normally and have outliers.
+qqnorm(rstandard(fit))
+
+#timeplot of residuals
+series<- ts(resid,start=1,end=52,frequency = 1)
+plot(series,plot.type = "single")
+# from the plot we can not see if the error the error terms are correlated
+
+```
+###PB6
+Inference in the multiple regression setting is typically performed in a number of
+steps.
+We begin by testing whether the explanatory variables collectively have an
+effect on the response variable, i.e. $\beta_1 =\beta_2=\beta_3=0$
+If we can reject this hypothesis, we continue by testing whether the individual
+regression coefficients are significant while controlling for the other variables in
+the model.
+Reject H0 if P-value < 0.01.  Since P-value < 0.005, we reject H0 and conclude that there is a significant linear relationship between all the predictor variables and response.
+```{r}
+summary(fit)
+##pvalue
+#p-value: 3.316e-12
+
+##part c
+summary(fit)$r.squared
+
+```
+The coefficient of determination of a multiple linear regression model is the quotient of the variances of the fitted values and observed values of the dependent variable.
+
+###PB7
+```{r}
+
+predict(fit,data.frame(X1=282000, X2=7.10,X3=0),interval="confidence")
+
+predict(fit,data.frame(X1=282000, X2=7.10,X3=0),interval="prediction")
+```
+
+###PB8
+```{r}
+#partial coefficent of datermination
+#Coefficent of determination for multiple regression model can be calculated by the following #formula:
+partialR2 <- function(model.full, model.reduced){
+    anova.full <- anova(model.full)
+    anova.reduced <- anova(model.reduced)
+
+    sse.full <- tail(anova.full$"Sum Sq", 1)
+    sse.reduced <- tail(anova.reduced$"Sum Sq", 1)
+
+    pR2 <- (sse.reduced - sse.full) / sse.reduced
+    return(pR2)
+
+    }
+
+#R-square of model
+summary(fit)$r.squared
+
+# 
+fit <- lm(Y ~ X1, data=data)
+summary(fit)$r.squared
+
+#
+fit <- lm(Y ~ X2, data=data)
+summary(fit)$r.squared
+
+#
+fit <- lm(Y ~ X1+X2, data=data)
+summary(fit)$r.squared
+
+#Here,coefficient of multiple determination R^2, measureS the proportionate reduction in the variation of Y achieved by the introduction of the entire set of X variables considered in the mode.
+
+mod1 <- lm(Y ~ X2, data=data)
+mod2<-lm(Y~X1+X2,data=data)
+partialR2(mod2,mod1)
+
+mod1 <- lm(Y ~ X1, data=data)
+mod2<-lm(Y~X1+X2,data=data)
+partialR2(mod2,mod1)
+
+mod1 <- lm(Y ~ X1+X3, data=data)
+mod2<-lm(Y~X1+X3+X2,data=data)
+partialR2(mod2,mod1)
+#Here, coefficient of partial determination, meaSures the marginal contribution of one X variable when all others are already included in the modeL
+```
+###PB9
+```{r}
+##a
+zx1 <- ((data$X1-mean(data$X1))/sd(data$X1))*1/(sqrt(length(data$X1)-1))
+zx2 <- ((data$X2-mean(data$X2))/sd(data$X2))*1/(sqrt(length(data$X2)-1))
+zx3 <- ((data$X3-mean(data$X3))/sd(data$X3))*1/(sqrt(length(data$X3)-1))
+zy <- ((data$Y-mean(data$Y))/sd(data$Y))*1/(sqrt(length(data$Y)-1))
+
+fit <- lm(zy ~ zx1 + zx2 + zx3)
+fit
+
+##b
+#coefficients of determination
+pair1<-lm(X1~X2,data=data)
+summary(pair1)$r.squared
+pair2<-lm(X2~X3,data=data)
+summary(pair2)$r.squared
+pair3<-lm(X3~X1,data=data)
+summary(pair3)$r.squared
+
+#Yes.It is meaningful.
+
+###c
+b1<-summary(fit)$coefficients[2,1]
+b2<-summary(fit)$coefficients[3,1]
+b3<-summary(fit)$coefficients[4,1]
+
+b1*(sd(data$Y)/sd(data$X1))
+b2*(sd(data$Y)/sd(data$X2))
+b3*(sd(data$Y)/sd(data$X3))
+##It  is same
+```
+##PB10
+```{r}
+##a
+first_order<-lm(Y~X1,data)
+first_order
+
+##b
+#estimated regression coefficient is same
+
+##c
+mod1 <- lm(Y ~ X1, data=data)
+mod2<-lm(Y~X1+X2,data=data)
+SSR1 <- sum((predict(mod1) - mean(data$Y))^2)
+SSR1
+SSR2 <- sum((predict(mod2) - mean(data$Y))^2)
+SSR2
+#Yes.They are different, no significant change observed after adding X2 in model
+```
+#####d
+As we can see from part d that there is no significant change after introduction of new predcitor variable X2, the same thing can be verified in correlation matrix as we can see that R value is relatively low,hence it proves that X1 and X2 are not correlated.

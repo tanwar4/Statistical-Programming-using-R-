@@ -1,0 +1,160 @@
+---
+title: "hw5"
+author: "Tariq Anwar"
+date: "February 24, 2016"
+output: html_document
+---
+
+##Problem 1
+####a)
+Yes, The conclusion is correct.
+If there is no linear relationship between X and Y than $\beta_0 = 0$ , but slope confidence interval  is not 0 in this case, hence there is a linear relationship.
+
+Implied level of significance is 0.05 (95 % confidence interval given)
+
+####b)
+The regression parameter $\beta_0$ may not have intrinsic meaning here because the scope of the model does not contain X=0.Hence the values doesnt infer anything.
+The intercept parameter $\beta_0$ is the mean of the responses at x = 0.So when x =0 it is meaningless,as is the case with our example.
+
+
+##Problem 2
+No. It does not mean that there is no linear relationship.
+The null hypothesis is $H_0 <= 0$, which means we are checking whether its negative .
+
+##Problem3
+The P value we have is: $P-val = 0.91$
+this is very large value compared to significane level 0f 0.05 0r 0.01.
+
+So we fail to reject null hypothesis $H_0 = 0$
+
+#problem 4
+```{r}
+#Y = 168.6 + 2.03*X
+MSE = 9.151562   #from previous prog
+b1 = 2.03
+alpha = 0.02
+v=1280
+n = 16
+# output from hw4
+#v= var(ldata$X)*15 = 1280
+#MSE = mean(sumr$residuals^2)
+#sqrt(MSE/v) 
+
+s_b1 = sqrt(MSE/v)
+
+lci = b1-(qt(0.99,df=n-2)*s_b1)
+rci = b1+(qt(0.99,df=n-2)*s_b1)
+
+#left Confidence interval is be
+lci 
+
+#right confidence Interval
+rci
+```
+
+####4.b)
+The null and alternative hypothesis are
+$H_0: \beta_1 = 2$
+
+$H_a: \beta_1 \neq 2$
+
+Test statistics : $t(1-\alpha/2,n-2)$ = t(0.995,14) = 2.9768
+
+$t^* = (b_1-\beta_1)/s(b1)$
+
+    = (2.03 - 2 )/s_b1
+    
+    = `r (2.03-2)/s_b1`
+    
+As we see t^* < t , we fail to reject Null hypothesis
+
+P value is : P(0.354,14) = 0.7286
+
+
+####4.c)
+Power of the test
+
+ $v = (\beta_1 - \beta_0)/0.1  = 0.3/0.1 = 3$
+ 
+   = 0.53  Using the power table
+ 
+##Problem 5
+The value is not present because the  point estimator  depends on $X_h$ and it  is usually not known.$X_h$ is a value from sample or it may be any other value of the predictor variable within the scope of the model.Since the scope of model can contain a range of values,it is impossible to list all the values in the report.
+ 
+ 
+##Problem 6
+
+#### a)
+prediction interval for new observation
+
+#### b)
+confidence interval for mean response
+
+#### c)
+confidence interval for mean response
+ 
+   
+##Problem 7
+Yes, there is difference betweeen mean response at $X = X_h$  and the mean of m new observation.
+In the former case we estimate the mean of distribution of Y but in mean of m new observation we predict an individual outcome drawn from the distribution of Y.
+
+##Problem8
+```{r}
+ldata<- matrix(data = c( 199.0,205.0,196.0,200.0,218.0,220.0,215.0,223.0,237.0,234.0,235.0,230.0,250.0,248.0,253.0,246.0,16.0,16.0,16.0,16.0,24.0,24.0,24.0,24.0,32.0,32.0,32.0,32.0,40.0,40.0,40.0,40.0), nrow=16 , ncol=2)
+
+ldata<-data.frame(ldata)
+colnames(ldata)<- c("Y","X")
+#ldata
+#plot(ldata$X,ldata$Y)
+llm = lm(Y~X,data=ldata)
+
+
+#sumr<-summary(llm)
+#sumr
+
+#a
+newdata = data.frame(X=30)
+predict(llm, newdata, interval="confidence",level = 0.98)
+
+#b
+predict(llm, newdata, interval="predict",level = 0.98)
+
+```
+
+####c
+$98perc prediction interval = Y (+-) t_(\alpha/2,n-2) * s{_predmean}$
+
+Y = 169 + 2.03*(30) = 229.9
+t = t(0.01,14) = 2.624
+s^2{predmean} = MSE(1+1/10+1/16+var(Xh)/var(x)*15)
+s(Y) = 10.5(1/10 + 1/16 + 4/85.3*15) = 1.316
+
+CI = 229.9 (+-) 2.624*1.316
+   = (226.1 , 233.08)
+   
+####d
+yes , it is narrower because variance of mean is smaller than variance of single value
+
+####e
+
+Boundary value
+$w^2 = 2F(1 -\alpha;2, n - 2)$
+
+=2F(.98,2,14)
+
+W^2= 10.482
+W = 3.238
+
+CI = 229.9 (+-) 3.238*0.8285
+    =  (226.9, 232.3)
+    
+  Yes, the confidence band is wider
+  
+##Problem 9
+P-value of the test = .033
+Analyst conclusion $H_a : \beta_1 \neq 0$
+the significance level should be same as 0.033
+We will get exactly the same P-values, so,
+If one test rejects H0, then so will the other.
+If one test does not reject H0, then so will the other
+    

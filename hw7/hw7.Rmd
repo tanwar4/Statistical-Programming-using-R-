@@ -1,0 +1,165 @@
+---
+title: "hw7"
+author: "Tariq Anwar"
+date: "April 3, 2016"
+output: html_document
+---
+###Problem 1
+```{r}
+data = read.table("newData.txt",sep = '\t')
+colnames(data)<- c ("Y","X1","X2","X3","X4")
+
+# part A
+X1<- data$X1
+stem(X1)
+
+X2<- data$X2
+stem(X2)
+
+X3<- data$X3
+stem(X3)
+
+X4<- data$X4
+stem(X4)
+
+#There are no outlying cases and no gaps in data
+
+#part B
+#correlation
+pairs(data[,1:5])
+
+#correlation matrix
+cor(data)
+mcor<-cor(data)
+
+# X3 and X4 are highly multicolinear
+#correlation matrix tells that the predictor variable X4 and X3 are highly correlated with response variable.
+library(corrplot)
+corrplot(mcor, type="upper", order="hclust", tl.col="black", tl.srt=15)
+
+
+###Part C
+#collinear Function
+fit <- lm(Y ~ X1+X2+X3+X4, data=data)
+fit
+##since x3 and x4 are multicolinear we can remove one of them
+```
+
+###Problem 2
+```{r}
+library(leaps)
+leaps( x=data[,2:5], y=data[,1], names=names(data)[2:5], method="adjr2")
+
+##Four beast submodels are below models which conatains:
+#only X1 and X3
+#only X3 and X4
+#only X1 X3 and X4
+#only X1 X2 and X3
+
+#Since there is very less difference between the above four subsets we can use Cp criteria to 
+#figure out the best models among the four subsets.
+leaps( x=data[,2:5], y=data[,1], names=names(data)[2:5], method="Cp")
+
+##As we can clearly see that the model which contains X1, X3 and X4 gives the value which is nearer to its p value hence we select the given model among all four.
+
+```
+
+###Problem 3
+```{r}
+##To use stepwise regression in forward direction , we first fit a base model with X3 as predictor and full model with all the predictor variables.
+library(MASS)
+Base <- lm( Y ~ X3, data=data )
+full <- lm(Y ~ X1+X2+X3+X4, data=data)
+##so the forward step wise regression will use the follwing command.This uses AIC criterion
+#step(Base, scope = list( upper=full, lower=~1 ), direction = "forward", trace=FALSE)
+
+## to use p-value based forward regression
+Null = lm( Y ~ 1, data=data )
+addterm( Null, scope = full, test="F" )
+NewMod = update( Null, .~. +X3 )
+addterm( NewMod, scope = full, test="F" )
+NewMod = update( NewMod, .~. +X1 )
+addterm( NewMod, scope = full, test="F" )
+NewMod = update( NewMod, .~. +X4 )
+addterm( NewMod, scope = full, test="F" )
+
+#part b
+##As we can see from the result the forward regression model predicted the same model as we did in previous question.
+```
+
+###Problem 4
+```{r}
+model<- lm(Y~X1+X3+X4,data=data)
+
+r <- resid(model)
+sum(r^2)
+
+##PRESS
+pr <- resid(model)/(1 - lm.influence(model)$hat)
+sum(pr^2)
+
+# as we can see from the result that PRESS statistics is bigger than R^2 because  predicting is harder than fitting.
+```
+
+###Problem 5
+```{r}
+newdata = read.table("22Data.txt",sep = '\t')
+colnames(newdata)<- c ("Y","X1","X2","X3","X4")
+
+##part a
+cor(newdata)
+##Yes the correlation matrix is reasonably same as old correlation matrix obtained by data.
+
+##part b
+summary(model)
+mse<-mean(model$residuals^2)
+model<- lm(Y~X1+X3+X4,data=newdata)
+summary(model)
+
+##as we can see from the results of both summary that  the estimates for the validation dat,1 set appear to be reasonably similar to those obtained for the model-building data set
+
+pred  <- predict(model)
+r<- newdata$Y-pred
+sum(r^2)/25
+mse
+##As we can see mse and mspr are fairly close
+##If the mean squared prediction error MSPR is fairly close to MSEbased on the regression
+#fit to the model-building data set, then the error mean square MSE for the selected regression model is not seriously biased and gives an appropriate indication of the predictive ability of the model
+
+
+##part d
+total <- rbind(data,newdata)
+model<- lm(Y~X1+X3+X4,data=total)
+model
+
+##coefficient and standard deviations are fairly similiar to the older model
+```
+
+###Problem 6
+The logistic response function is used for modeling the expected response (or probability). The logistic or logit function is used to transform an 'S'-shaped curve into an approximately straight line and to change the range of the proportion from 0-1 to -??? to +???
+However the observed response are either 0 and 1 and hence they can not be transformed individually to retrieve a linear model.
+
+###problem 7
+```{r}
+data = read.table("CH14PR14.txt",sep = '')
+colnames(data)<- c ("Y","X1","X2","X3")
+
+##a
+fit<- glm(Y ~ X1+X2+X3, family=binomial, data=data) 
+summary(fit)
+
+# as we can see from summary statistics
+#. b0 = ???1.17717, b1 = .07279, b2 = ???.09899, b3 = .43397
+#??^ = [1 + exp(1.17717 ??? .07279X1 + .09899X2 ??? .43397X3)]^ ???1
+
+##part b
+#These represents odds
+exp(.07279)
+exp(-.09899)
+exp(.43397)
+
+##part c  Estimated probablity
+1/(1 + exp(1.17717-(.07279*55)+(.09899*60)-(.43397*1)))
+
+
+```

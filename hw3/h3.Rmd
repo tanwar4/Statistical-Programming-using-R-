@@ -1,0 +1,182 @@
+---
+title: "hw3"
+author: "Tariq Anwar"
+date: "February 3, 2016"
+output: html_document
+---
+
+## Question 1 (a)
+Since it is given that population variance is equal. We can test the NULL hypothesis as
+
+$$ H_0 : \mu_c - \mu_s = 0$$
+
+againts the alternative hypothesis
+
+$$ H_a : \mu_c - \mu_s \neq 0$$
+
+using the test statistic
+
+$$t = \dfrac {(\bar X - \bar Y) - (\mu_c -\mu_s)}  {S_p\sqrt {\dfrac{1}{n} + \dfrac {1}{m}} }$$
+
+$$t = \dfrac {(12.25 - 15.25) - 0}  {S_p\sqrt {\dfrac{1}{15} + \dfrac {1}{12}} }$$
+
+The $S_p$ standard deviation can be calculated as
+
+$$S_p = \sqrt{\dfrac {14(3.3)^2 +11(3.6)^2} {25}} = `r sqrt((14*(3.3)^2 +11*(3.6)^2)/25) `$$ 
+
+So the test statistic is:
+ $$t =  `r ((12.25 - 15.25) - 0)/ (3.435229* sqrt ((1/15) + (1/12))) ` $$
+ 
+ 
+ Calculating the P-value for 
+ $$P = 2*P(T_{25}>t) = 2*0.016605 = 0.03321$$
+ 
+ Therefore beacause P is less than $\alpha =0.05 $ we reject  the null hypothesis in favor of alternative i.e it is justified in concluding that caffeine impairs recall ability.
+ 
+ 
+### Question 1.b  when population variance are not equal.
+ 
+ $$t = \dfrac {12.25-15.25}{\sqrt{\dfrac{3.3^2}{15} + \dfrac{3.6^2}{12}}} = 
+ `r (12.25-15.25)/(sqrt((3.3^2)/(15) +(3.6^2)/(12))) ` $$
+ 
+ Degree of freedom (r) can be calculated as:
+ 
+ $$ r = \dfrac {(\dfrac {3.3^2}{15} + \dfrac {3.6^2}{12})^2} 
+              { \dfrac{1}{14} (\dfrac{3.3^2}{15})^2 + \dfrac{1}{11} (\dfrac{3.6^2}{12})^2}=`r  ((3.3)^2 /15 + (3.6)^2/12)^2 / ((1/14*((3.3)^2/15)^2)+ (1/11*((3.6)^2/12)^2))`  = 23 $$
+ 
+
+As $t=2.23 > t_{0.025,23} = 2.069$  We reject the null hypothesis
+
+##Question 1.c
+
+### i) Individual Confidence interval
+```{r}
+a<- 15.25
+s<-3.3
+n<-15
+error <- qt(0.975,df=n-1)*s/sqrt(n)
+left <- a-error
+left
+right <- a+error
+right
+
+#second
+a<- 12.25
+s<-3.6
+n<-12
+error <- qt(0.975,df=n-1)*s/sqrt(n)
+left <- a-error
+left
+right <- a+error
+right
+
+```
+
+### ii)
+the 95% confidence interval tells about the confidence level that the 95 % of time the mean of samples will fall under the interval
+A 95% confidence interval has a 0.95 probability of containing the population sample mean. 95% of the population distribution is contained in the confidence interval.
+The 95% confidence interval is not the interval that contains 95% of recalled words, instead it tells about the probablity that the if any random sample is taken from population it will fall under that interval 95% of time and not the other way round.
+
+### iii)
+Degree of freedom according to Welch t interval
+ 
+ 
+ $$ r = \dfrac {(\dfrac {3.3^2}{15} + \dfrac {3.6^2}{12})^2} 
+              { \dfrac{1}{14} (\dfrac{3.3^2}{15})^2 + \dfrac{1}{11} (\dfrac{3.6^2}{12})^2}=`r  ((3.3)^2 /15 + (3.6)^2/12)^2 / ((1/14*((3.3)^2/15)^2)+ (1/11*((3.6)^2/12)^2))`  = 23 $$
+              
+  Using T -table we calculate t value =   $t_{0.025,23} = 2.069$
+  
+  substituting the values to find the interval:
+  $${12.25-15.25} (+-) 2.069 \sqrt{\dfrac{3.3^2}{15} + \dfrac {3.6^2}{12}} = [`r (15.25-12.25)- 2.069*(sqrt((3.3^2)/15 + (3.6^2)/12)) ` , `r (15.25-12.25)+2.069*(sqrt((3.3^2)/15 + (3.6^2)/12)) ` ] $$
+ 
+###Question 1.d
+Both approaches have advantage in different situation:
+
+
+Hypothesis testing should be used when we want strict comparison with a pre-specified hypothesis and significance level.
+
+Confidence interval is better suited for magnitude of an effect (mean difference, proportion) or when we need to describe a single sample.
+ 
+##Question 2
+```{r}
+prop.test((60/100)*1024, 1024, conf.level=0.95, correct = FALSE)
+prop.test((60/100)*1024, 1024, conf.level=0.90, correct = FALSE)
+
+
+```
+
+The 95% confidence interval is wider because  the greater the confidence level, the more confident we can be that the confidence interval contains the actual population parameter and it has more area under it.Also since the $\alpha$ value for 95% is greater than 90% which means the standard error value is going to be greater in 95% than in 90% hence the bigger interval.
+
+
+###Question2.b
+
+$$ Effect Size(ES) = \dfrac {0.05}{\sqrt{0.55(1-0.55)}} = `r  0.05/sqrt(0.55*(1-0.55)) `$$
+
+$$ n = \dfrac {Z_{1-\alpha/2 } + Z_{1-\beta}}{ES }  = `r ((1.96+0.84)/0.10)^2 ` $$
+
+
+
+##Question 3
+
+### 1
+Since it $\bar x_1 and \bar x_2$ represent sample mean , it can not be true. The hypothesis testing is  done on population mean not on samples, hence this statement is wrong.
+
+### 2
+Since the study is done using independent two-sample t-test and in this case one sample contains the entire population , hence this is not independent.The requirement of T-test is that the sample should be independent.
+
+### 3
+P value of range 0.94 is within the confidence level of 90% so the null hypothesis in this case can not be rejected.
+
+###4
+Since the p-value of alternative hypothesis is 3.6 % and it  is less than 0, the area will be divided into two parts for t.
+The first part will be area to the right of t value.
+The second part will have area to the left of t value.
+The area to the right will be 1.8 % where as the area to the left of t-value will be 100-1.8%.
+
+
+
+##Question 4
+### a
+```{r}
+m<-c(0,0.5,1,2,3)
+sd<-c(0.01,0.25,0.5,1,2)
+c<- expand.grid(a=m,b=sd)
+
+##sample size of 10
+
+
+t.test.stats <- function(m,s,n,samp) {
+  pval<- integer(length = 0)
+  for(i in 1:n){
+   d<- rnorm(samp, m, s)
+   e<- rnorm(samp,m,s)
+  pval[i]<-  (t.test(d,e)$p.value)
+}
+ hist(log(pval))
+}
+
+invisible(mapply(t.test.stats,c$a,c$b,500,10))
+
+```
+
+##Question4.b
+```{r}
+invisible(mapply(t.test.stats,c$a,c$b,500,30))
+
+#### for 300
+invisible(mapply(t.test.stats,c$a,c$b,500,300))
+
+```
+
+##Question4.c
+Observation:
+
+
+Small samples show substantial variation i.e the P-value varies significantly in sample sizes which are small.
+
+
+As the sample size increase , the uncertainity about mean decreases so the p-value becomes smaller as the sample size increase.
+
+As we can see from histogram a larger sample size with the same sample mean will result in a smaller p-value.
+
+

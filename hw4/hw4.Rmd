@@ -1,0 +1,201 @@
+---
+title: "hw4"
+author: "Tariq Anwar"
+date: "February 16, 2016"
+output: html_document
+---
+##Problem1
+Team Member: Tariq Anwar
+
+Project Description: U.S Dept of Education: College Scorecard.
+Source: https://www.kaggle.com/kaggle/college-scorecard
+I am planning to work on this dataset. It was published few months ago as part of Kaggle online competition in Data Science.
+
+##Problem 2.a
+The participant objection might hold true because merely looking at the results provided by
+regresssion analysis such as coefficent of determination and correlation coefficent often mislead the conclusion.It is therefore necessary to study the domain also which might reveal better information.
+
+Although , the coefficient of determination $r^2$ and correlation coefficient r quantify the strength of lineat relationship . It is possible that $r^2= 0% and r =0$, suggesting that there is no relationship between hardness of plastic (Y) and elapsed time since moulding(X) and yet a perfect curved relationship exists between these variables.
+
+Even if we get higher coefficient of determination between two  variables it does not mean that estimated regression line fits the data well,another function might describe data well.
+
+And the most important of all point is correlation does not imply causation.There are many possible reason as to why there is an association between X and Y.So to reach the conclusion designed experiment and sound scientific justification is required.
+
+
+
+##Problem 2.b
+Yes. The equation is true for ith data point in the population 
+
+A simple regression model averaged over a set of data points can be summarized with the below formula:
+$$E(y)= \beta_0 +\beta_1x $$
+
+The above formula is  population regression line and it summarizes the trend in the population between the predictor variable and the mean of the population .
+
+The equation for average of i-th data point can be represented by the below formula.
+$$E(y)= \beta_0 +\beta_1x + e_i$$
+where  $e_i$  represent the error.
+
+
+##Problem 2.c
+The statement that for least square method to be fully valid, it is required that distribution of Y be normal does not holds true because the least square method depends on the error variance from best fit line and on the assumption that mean of the predictor variable is linear function of explanatory variables.
+
+##Problem 2.d
+It is not necessarily that in a regression model fitted to set of n cases by least square method the summation of random error will be 0.
+Random error is related to popualation  and the residuals are related to samples.Residuals are estimates to errors.However these both terms can be used interchangebly  so the summation may or may not be 0.
+
+##Problem 2.e
+```{r}
+ldata<- matrix(data = c( 199.0,205.0,196.0,200.0,218.0,220.0,215.0,223.0,237.0,234.0,235.0,230.0,250.0,248.0,253.0,246.0,16.0,16.0,16.0,16.0,24.0,24.0,24.0,24.0,32.0,32.0,32.0,32.0,40.0,40.0,40.0,40.0), nrow=16 , ncol=2)
+
+ldata<-data.frame(ldata)
+colnames(ldata)<- c("Y","X")
+#ldata
+plot(ldata$X,ldata$Y)
+llm = lm(Y~X,data=ldata)
+
+
+sumr<-summary(llm)
+sumr
+
+
+abline(llm)
+
+
+```
+
+
+The estimated regression model is
+$Y = 168.6 + 2.03X$
+
+
+####Point estimate of mean hardness of 40
+```{r}
+Y = 168.6 + 2.03*(40)
+Y
+```
+Point estimate of change in mean hardness when X increases by 1 hour is = 168.6
+
+
+
+###Problem 2.f
+
+```{r}
+resid = resid(llm)
+#List of residuals 
+resid
+
+
+sum(resid)
+##Sum is almost 0
+
+##Estimation (b)
+
+MSE = mean(sumr$residuals^2)
+MSE 
+
+#sigma
+mean(sumr$residuals)
+
+#The unit will be same as that of Y i.e hardness in brinell
+
+
+```
+
+##Problem 3
+```{r}
+library(tidyr, quietly = TRUE)
+library(dplyr, quietly = TRUE)
+
+sestates <- read.csv("http://samplecsvs.s3.amazonaws.com/Sacramentorealestatetrans
+actions.csv", header = TRUE, stringsAsFactors = FALSE)
+head(sestates)
+
+## replace the column sale date
+
+tidy_data<- tidyr::separate (sestates, sale_date, c ("day_week", "month", "day_month" ))
+
+head(tidy_data)
+
+## b. What's the top 10 cities with the most transactions?
+
+byTrans<- group_by(sestates,city)
+sumTrans<- summarize(byTrans,count=n())
+sumTrans <- dplyr::arrange(sumTrans, desc(count)) 
+dplyr::top_n(sumTrans, 10)
+
+##c. What's the accumulated number of transactions from May 15 to May 21 in city ELK GROVE?
+filtered <- dplyr::filter(tidy_data, city=="ELK GROVE")
+bydate<- dplyr::filter(filtered,month=="May" ,day_month>=15 ,day_month<=21 )
+sumTrans<- group_by(bydate,day_month,month)
+sumTrans<- summarize(sumTrans,n_trans=n())
+sumTrans<-mutate(sumTrans,n_cumtrans=sum(n_trans))
+sumTrans
+
+
+##d. For each type of house (Condo, Multi-Family, and Residential), what's the highest 3 transaction prices? In which cities?
+
+as<- tidy_data %>% group_by(type) %>% arrange(desc(price)) %>% top_n(3,price)
+as<-select(as,type,city,price)
+as<-dplyr::filter(as, type != "Unkown")
+as
+
+
+##e. Are the values in column sq__ft looking okay? If not, what changes need to be made? For each type of house (Condo, Multi-Family, and Residential), what's the top 3 cities with the highest price per square foot?
+
+summary(sestates$sq__ft)
+
+filtered <- dplyr::filter(tidy_data, sq__ft!=0)
+summary(filtered$sq__ft)
+
+as<- filtered %>% group_by(type) %>% arrange(desc(price))
+as<-select(as,type,city,price,sq__ft)
+as<-mutate(as, per_sq = price/sq__ft)
+as<-arrange(as,desc(per_sq))%>% top_n(3,per_sq)
+as<-select(as,type,city,per_sq)
+as
+
+##f. For each type of house (Condo, Multi-Family, and Residential) in city SACRAMENTO, what's the number of transactions, average price, and average price per square foot?
+filtered <- dplyr::filter(filtered, city=="SACRAMENTO")
+as<- group_by(filtered,type)
+sumTrans1<- summarize(as,n_trans=n(),avg=mean(price),avg_pr=mean(price/sq__ft))
+sumTrans1
+
+```
+
+##Problem 4
+```{r}
+library(lattice, quietly = TRUE)
+library(ggplot2, quietly = TRUE)
+
+xyplot(price ~ carat | cut,
+data = diamonds,
+panel = function(x, y, ...) {
+panel.xyplot(x, y, ...)
+lm1 <- lm(y ~ x)
+panel.abline(a = lm1$coefficients[1],
+b = lm1$coefficients[2])
+},
+as.table = TRUE)
+
+ggplot(data = diamonds, aes(x = diamonds$carat, y = diamonds$price))
+
+
+ggplot(data = diamonds, aes(x = diamonds$carat, y = diamonds$price))+
+      geom_point() +
+      theme_bw()
+
+
+ggplot(data = diamonds, aes(x = diamonds$carat, y = diamonds$price))+
+      geom_point() +
+      geom_smooth(method ="lm") + 
+      theme_bw()
+
+t <- ggplot(data = diamonds, aes(x = diamonds$carat, y = diamonds$price))+
+      geom_point()+
+      geom_smooth(method ="lm")+
+      theme_bw()
+
+t + facet_grid(cut~ .)
+
+#qplot(diamonds$carat, diamonds$price)
+```
